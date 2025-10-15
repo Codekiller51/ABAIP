@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Plus, Search, Filter, CreditCard as Edit, Trash2, Eye, Calendar, User, Tag, FileText, MoreHorizontal, Star, Clock } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { Database } from '../../lib/supabase'
+import { InsightEditor } from '../components/insights/InsightEditor'
 import toast from 'react-hot-toast'
 
 type Insight = Database['public']['Tables']['insights']['Row']
@@ -11,7 +12,7 @@ export const Insights: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'published' | 'archived'>('all')
-  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showEditor, setShowEditor] = useState(false)
   const [selectedInsight, setSelectedInsight] = useState<Insight | null>(null)
 
   useEffect(() => {
@@ -39,6 +40,29 @@ export const Insights: React.FC = () => {
       console.error('Error:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleEdit = (insight: Insight) => {
+    setSelectedInsight(insight)
+    setShowEditor(true)
+  }
+
+  const handleCreate = () => {
+    setSelectedInsight(null)
+    setShowEditor(true)
+  }
+
+  const handleEditorClose = () => {
+    setShowEditor(false)
+    setSelectedInsight(null)
+  }
+
+  const handleEditorSave = (savedInsight: Insight) => {
+    if (selectedInsight) {
+      setInsights(insights.map(i => i.id === savedInsight.id ? savedInsight : i))
+    } else {
+      setInsights([savedInsight, ...insights])
     }
   }
 
@@ -146,7 +170,7 @@ export const Insights: React.FC = () => {
           </p>
         </div>
         <button
-          onClick={() => setShowCreateModal(true)}
+          onClick={handleCreate}
           className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors duration-200 flex items-center space-x-2"
         >
           <Plus className="h-4 w-4" />
@@ -199,7 +223,7 @@ export const Insights: React.FC = () => {
             </p>
             {!searchTerm && (
               <button
-                onClick={() => setShowCreateModal(true)}
+                onClick={handleCreate}
                 className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors duration-200"
               >
                 Create Insight
@@ -302,6 +326,7 @@ export const Insights: React.FC = () => {
                         </button>
                         
                         <button
+                          onClick={() => handleEdit(insight)}
                           className="p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition-colors duration-200"
                           title="Edit insight"
                         >
@@ -417,6 +442,14 @@ export const Insights: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Insight Editor */}
+      <InsightEditor
+        insight={selectedInsight}
+        isOpen={showEditor}
+        onClose={handleEditorClose}
+        onSave={handleEditorSave}
+      />
     </div>
   )
 }

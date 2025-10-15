@@ -2,19 +2,28 @@ import React, { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { 
-  X, 
-  Save, 
-  Eye, 
-  Image, 
-  Tag, 
+import {
+  X,
+  Save,
+  Eye,
+  Image,
+  Tag,
   Calendar,
   Globe,
   FileText,
-  Star
+  Star,
+  Clock,
+  Send,
+  Bold,
+  Italic,
+  List,
+  Link as LinkIcon,
+  Code
 } from 'lucide-react'
 import { supabase } from '../../../lib/supabase'
 import { Database } from '../../../lib/supabase'
+import { useAuth } from '../../hooks/useAuth'
+import { ImageUploader } from './ImageUploader'
 import toast from 'react-hot-toast'
 
 type Insight = Database['public']['Tables']['insights']['Row']
@@ -32,6 +41,7 @@ const schema = yup.object({
   categories: yup.array().of(yup.string()),
   tags: yup.array().of(yup.string()),
   keywords: yup.array().of(yup.string()),
+  scheduled_publish_at: yup.string().nullable(),
 })
 
 type FormData = yup.InferType<typeof schema>
@@ -49,15 +59,19 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
   onClose,
   onSave
 }) => {
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<'content' | 'seo' | 'settings'>('content')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [categoryInput, setCategoryInput] = useState('')
   const [tagInput, setTagInput] = useState('')
   const [keywordInput, setKeywordInput] = useState('')
+  const [schedulePublish, setSchedulePublish] = useState(false)
+  const [publishAction, setPublishAction] = useState<'draft' | 'publish' | 'schedule'>('draft')
+  const [showImageUploader, setShowImageUploader] = useState(false)
 
   const {
     register,
-    handleSubmit,
+    handleSubmit: formHandleSubmit,
     formState: { errors },
     reset,
     watch,
@@ -76,7 +90,8 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
       image_url: '',
       categories: [],
       tags: [],
-      keywords: []
+      keywords: [],
+      scheduled_publish_at: ''
     }
   })
 
@@ -98,8 +113,14 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
         image_url: insight.image_url || '',
         categories: insight.categories || [],
         tags: insight.tags || [],
-        keywords: insight.keywords || []
+        keywords: insight.keywords || [],
+        scheduled_publish_at: ''
       })
+      if (insight.published_at && insight.status === 'draft') {
+        setSchedulePublish(true)
+        const scheduledDate = new Date(insight.published_at)
+        setValue('scheduled_publish_at', scheduledDate.toISOString().slice(0, 16))
+      }
     } else {
       reset({
         title: '',
@@ -112,10 +133,15 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
         image_url: '',
         categories: [],
         tags: [],
-        keywords: []
+        keywords: [],
+        scheduled_publish_at: ''
       })
+      setSchedulePublish(false)
+      if (user) {
+        setValue('author', `${user.first_name} ${user.last_name}`)
+      }
     }
-  }, [insight, reset])
+  }, [insight, reset, user, setValue])
 
   // Auto-generate slug from title
   useEffect(() => {
@@ -130,9 +156,20 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
     }
   }, [watchedTitle, setValue, insight])
 
-  const onSubmit = async (data: FormData) => {
+  const handleSubmit = async (data: FormData, action: 'draft' | 'publish' | 'schedule') => {
     try {
       setIsSubmitting(true)
+
+      let status: 'draft' | 'published' | 'archived' = 'draft'
+      let publishedAt: string | null = null
+
+      if (action === 'publish') {
+        status = 'published'
+        publishedAt = new Date().toISOString()
+      } else if (action === 'schedule' && data.scheduled_publish_at) {
+        status = 'draft'
+        publishedAt = new Date(data.scheduled_publish_at).toISOString()
+      }
 
       const insightData: InsightInsert = {
         title: data.title,
@@ -146,8 +183,9 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
         categories: data.categories || [],
         tags: data.tags || [],
         keywords: data.keywords || [],
-        status: 'draft',
-        featured: false
+        status,
+        published_at: publishedAt,
+        featured: insight?.featured || false
       }
 
       let result
@@ -170,7 +208,13 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
 
       if (result.error) throw result.error
 
-      toast.success(insight ? 'Insight updated successfully' : 'Insight created successfully')
+      const actionMessage = action === 'publish'
+        ? 'published'
+        : action === 'schedule'
+        ? 'scheduled for publishing'
+        : 'saved as draft'
+
+      toast.success(`Insight ${actionMessage} successfully`)
       onSave(result.data)
       onClose()
     } catch (error: any) {
@@ -183,6 +227,59 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const onSubmit = (data: FormData) => {
+    handleSubmit(data, publishAction)
+  }
+
+  const insertFormatting = (tag: string, textarea: HTMLTextAreaElement) => {
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    const selectedText = textarea.value.substring(start, end)
+    const beforeText = textarea.value.substring(0, start)
+    const afterText = textarea.value.substring(end)
+
+    let newText = ''
+    let cursorOffset = 0
+
+    switch(tag) {
+      case 'bold':
+        newText = `${beforeText}<strong>${selectedText}</strong>${afterText}`
+        cursorOffset = selectedText ? 0 : 8
+        break
+      case 'italic':
+        newText = `${beforeText}<em>${selectedText}</em>${afterText}`
+        cursorOffset = selectedText ? 0 : 4
+        break
+      case 'h2':
+        newText = `${beforeText}<h2>${selectedText}</h2>${afterText}`
+        cursorOffset = selectedText ? 0 : 4
+        break
+      case 'h3':
+        newText = `${beforeText}<h3>${selectedText}</h3>${afterText}`
+        cursorOffset = selectedText ? 0 : 4
+        break
+      case 'ul':
+        newText = `${beforeText}<ul>\n  <li>${selectedText}</li>\n</ul>${afterText}`
+        cursorOffset = selectedText ? 0 : 10
+        break
+      case 'link':
+        newText = `${beforeText}<a href="">${selectedText}</a>${afterText}`
+        cursorOffset = selectedText ? -selectedText.length - 4 : 2
+        break
+      case 'code':
+        newText = `${beforeText}<code>${selectedText}</code>${afterText}`
+        cursorOffset = selectedText ? 0 : 6
+        break
+    }
+
+    setValue('content', newText)
+    setTimeout(() => {
+      textarea.focus()
+      const newPosition = selectedText ? end + (newText.length - textarea.value.length) : start + tag.length + cursorOffset
+      textarea.setSelectionRange(newPosition, newPosition)
+    }, 0)
   }
 
   const addCategory = () => {
@@ -340,10 +437,95 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
                       Content *
                     </label>
+
+                    {/* Formatting Toolbar */}
+                    <div className="flex items-center space-x-1 mb-2 p-2 bg-neutral-50 border border-neutral-300 rounded-lg">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement
+                          insertFormatting('bold', textarea)
+                        }}
+                        className="p-2 rounded hover:bg-neutral-200 transition-colors"
+                        title="Bold"
+                      >
+                        <Bold className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement
+                          insertFormatting('italic', textarea)
+                        }}
+                        className="p-2 rounded hover:bg-neutral-200 transition-colors"
+                        title="Italic"
+                      >
+                        <Italic className="h-4 w-4" />
+                      </button>
+                      <div className="w-px h-6 bg-neutral-300 mx-1" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement
+                          insertFormatting('h2', textarea)
+                        }}
+                        className="px-2 py-1 rounded hover:bg-neutral-200 transition-colors text-sm font-semibold"
+                        title="Heading 2"
+                      >
+                        H2
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement
+                          insertFormatting('h3', textarea)
+                        }}
+                        className="px-2 py-1 rounded hover:bg-neutral-200 transition-colors text-sm font-semibold"
+                        title="Heading 3"
+                      >
+                        H3
+                      </button>
+                      <div className="w-px h-6 bg-neutral-300 mx-1" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement
+                          insertFormatting('ul', textarea)
+                        }}
+                        className="p-2 rounded hover:bg-neutral-200 transition-colors"
+                        title="Bullet List"
+                      >
+                        <List className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement
+                          insertFormatting('link', textarea)
+                        }}
+                        className="p-2 rounded hover:bg-neutral-200 transition-colors"
+                        title="Link"
+                      >
+                        <LinkIcon className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement
+                          insertFormatting('code', textarea)
+                        }}
+                        className="p-2 rounded hover:bg-neutral-200 transition-colors"
+                        title="Code"
+                      >
+                        <Code className="h-4 w-4" />
+                      </button>
+                    </div>
+
                     <textarea
                       {...register('content')}
+                      id="content-textarea"
                       rows={12}
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono text-sm"
                       placeholder="Write your insight content here... (HTML supported)"
                     />
                     {errors.content && (
@@ -365,6 +547,7 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
                       />
                       <button
                         type="button"
+                        onClick={() => setShowImageUploader(true)}
                         className="px-4 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors duration-200"
                       >
                         <Image className="h-4 w-4" />
@@ -372,6 +555,18 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
                     </div>
                     {errors.image_url && (
                       <p className="mt-1 text-sm text-red-600">{errors.image_url.message}</p>
+                    )}
+                    {watch('image_url') && (
+                      <div className="mt-2 relative rounded-lg overflow-hidden border border-neutral-200">
+                        <img
+                          src={watch('image_url') || ''}
+                          alt="Preview"
+                          className="w-full h-48 object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = 'https://via.placeholder.com/400x300?text=Invalid+Image'
+                          }}
+                        />
+                      </div>
                     )}
                   </div>
                 </div>
@@ -552,13 +747,69 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
                   Cancel
                 </button>
                 <div className="flex space-x-3">
+                  {/* Schedule Publishing */}
+                  {schedulePublish && (
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="h-4 w-4 text-neutral-500" />
+                      <input
+                        {...register('scheduled_publish_at')}
+                        type="datetime-local"
+                        className="px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      />
+                    </div>
+                  )}
+
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={() => {
+                      setSchedulePublish(!schedulePublish)
+                      if (schedulePublish) {
+                        setValue('scheduled_publish_at', '')
+                      }
+                    }}
+                    className="px-4 py-2 text-neutral-700 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors duration-200 flex items-center space-x-2"
+                  >
+                    <Clock className="h-4 w-4" />
+                    <span>{schedulePublish ? 'Remove Schedule' : 'Schedule'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPublishAction('draft')
+                      handleSubmit(getValues(), 'draft')
+                    }}
+                    disabled={isSubmitting}
+                    className="px-6 py-2 text-neutral-700 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                  >
+                    <Save className="h-4 w-4" />
+                    <span>Save Draft</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (schedulePublish && !getValues('scheduled_publish_at')) {
+                        toast.error('Please select a publish date and time')
+                        return
+                      }
+                      setPublishAction(schedulePublish ? 'schedule' : 'publish')
+                      handleSubmit(getValues(), schedulePublish ? 'schedule' : 'publish')
+                    }}
                     disabled={isSubmitting}
                     className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                   >
-                    <Save className="h-4 w-4" />
-                    <span>{isSubmitting ? 'Saving...' : 'Save Draft'}</span>
+                    {schedulePublish ? (
+                      <>
+                        <Clock className="h-4 w-4" />
+                        <span>Schedule Publish</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4" />
+                        <span>Publish Now</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -566,6 +817,15 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
           </form>
         </div>
       </div>
+
+      {/* Image Uploader */}
+      {showImageUploader && (
+        <ImageUploader
+          currentUrl={watch('image_url') || ''}
+          onImageSelect={(url) => setValue('image_url', url)}
+          onClose={() => setShowImageUploader(false)}
+        />
+      )}
     </div>
   )
 }
