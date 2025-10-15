@@ -3,6 +3,7 @@ import { Plus, Search, Filter, CreditCard as Edit, Trash2, User, Mail, Shield, M
 import { supabase } from '../../lib/supabase'
 import { Database } from '../../lib/supabase'
 import { UserEditor } from '../components/users/UserEditor'
+import { RegisterForm } from '../components/auth/RegisterForm'
 import { useAuth } from '../hooks/useAuth'
 import toast from 'react-hot-toast'
 
@@ -15,6 +16,7 @@ export const Users: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | 'super_admin' | 'content_manager' | 'editor'>('all')
   const [showEditor, setShowEditor] = useState(false)
+  const [showRegisterForm, setShowRegisterForm] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
 
   useEffect(() => {
@@ -99,8 +101,7 @@ export const Users: React.FC = () => {
   }
 
   const handleCreate = () => {
-    setSelectedUser(null)
-    setShowEditor(true)
+    setShowRegisterForm(true)
   }
 
   const handleSave = (user: User) => {
@@ -418,6 +419,40 @@ export const Users: React.FC = () => {
           }}
           onSave={handleSave}
         />
+      )}
+
+      {/* Register Form Modal */}
+      {showRegisterForm && (
+        <div className="fixed inset-0 z-50 overflow-hidden">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setShowRegisterForm(false)} />
+
+          <div className="absolute inset-y-0 right-0 max-w-2xl w-full bg-white shadow-xl">
+            <div className="flex flex-col h-full">
+              <div className="flex items-center justify-between p-6 border-b border-neutral-200">
+                <div>
+                  <h2 className="text-xl font-semibold text-neutral-900">Register New User</h2>
+                  <p className="text-sm text-neutral-600 mt-1">Create a new user account with dashboard access</p>
+                </div>
+                <button
+                  onClick={() => setShowRegisterForm(false)}
+                  className="p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition-colors duration-200"
+                >
+                  <Plus className="h-5 w-5 rotate-45" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6">
+                <RegisterForm
+                  onSuccess={() => {
+                    setShowRegisterForm(false)
+                    fetchUsers()
+                  }}
+                  onCancel={() => setShowRegisterForm(false)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

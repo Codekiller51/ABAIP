@@ -10,6 +10,7 @@ import Team from './pages/Team';
 import Contact from './pages/Contact';
 import Resources from './pages/Resources';
 import InsightPost from './pages/InsightPost';
+import TempRegister from './pages/TempRegister';
 
 // Initial Loading Component (renamed from InitialLoader)
 const Loader = () => (
@@ -93,6 +94,7 @@ const MainAppContent = () => {
               <Route path="/contact" element={<Contact />} />
               <Route path="/resources" element={<Resources />} />
               <Route path="/insights/:id" element={<InsightPost />} />
+              <Route path="/temp-register" element={<TempRegister />} />
             </Routes>
           </PageWrapper>
         </main>
