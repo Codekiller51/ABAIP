@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { DashboardApp } from './dashboard/DashboardApp';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -9,6 +10,15 @@ import Team from './pages/Team';
 import Contact from './pages/Contact';
 import Resources from './pages/Resources';
 import InsightPost from './pages/InsightPost';
+
+// Check if we're in dashboard mode
+const isDashboard = window.location.pathname.startsWith('/dashboard');
+
+// If dashboard, render dashboard app
+if (isDashboard) {
+  const DashboardRoot = () => <DashboardApp />;
+  export default DashboardRoot;
+}
 
 // Initial Loading Component (renamed from InitialLoader)
 const Loader = () => (

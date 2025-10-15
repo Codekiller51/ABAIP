@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, Star, Shield, CheckCircle, MessageSquare, Calendar, Users, X } from 'lucide-react';
-import { emailService } from '../services/emailService';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -31,21 +30,21 @@ const Contact = () => {
     setSubmitStatus({ type: null, message: '' });
 
     try {
-      const result = await emailService.sendContactEmail(formData);
+      // Simulate form submission for now
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      if (result.success) {
-        setSubmitStatus({ type: 'success', message: result.message });
-        setFormData({
-          name: '',
-          email: '',
-          company: '',
-          phone: '',
-          subject: '',
-          message: ''
-        });
-      } else {
-        setSubmitStatus({ type: 'error', message: result.message });
-      }
+      setSubmitStatus({ 
+        type: 'success', 
+        message: 'Thank you for your message. We will contact you within 24 hours!' 
+      });
+      setFormData({
+        name: '',
+        email: '',
+        company: '',
+        phone: '',
+        subject: '',
+        message: ''
+      });
     } catch (error) {
       setSubmitStatus({ 
         type: 'error', 
