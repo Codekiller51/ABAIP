@@ -73,16 +73,48 @@ export const useAuthProvider = () => {
 
   const fetchUserProfile = async (userId: string) => {
     try {
+      const { data: authUser } = await supabase.auth.getUser()
+
       const { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('id', userId)
-        .single()
+        .maybeSingle()
 
-      if (error) throw error
+      if (error) {
+        throw error
+      }
+
+      if (!data) {
+        const { data: newUser, error: createError } = await supabase
+          .from('users')
+          .insert({
+            id: userId,
+            email: authUser?.user?.email || '',
+            first_name: '',
+            last_name: '',
+            role: 'editor',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .select()
+          .single()
+
+        if (createError) throw createError
+
+        setUser({
+          ...authUser?.user,
+          role: newUser.role,
+          first_name: newUser.first_name,
+          last_name: newUser.last_name,
+          avatar_url: newUser.avatar_url,
+        } as AuthUser)
+        setLoading(false)
+        return
+      }
 
       setUser({
-        ...session?.user,
+        ...authUser?.user,
         role: data.role,
         first_name: data.first_name,
         last_name: data.last_name,

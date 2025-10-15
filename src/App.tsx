@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { DashboardApp } from './dashboard/DashboardApp';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from './dashboard/components/auth/AuthProvider';
+import { ProtectedRoute } from './dashboard/components/auth/ProtectedRoute';
+import { LoginForm } from './dashboard/components/auth/LoginForm';
+import { Layout } from './dashboard/components/common/Layout';
+import { Dashboard } from './dashboard/pages/Dashboard';
+import { Insights } from './dashboard/pages/Insights';
+import { Team as DashboardTeam } from './dashboard/pages/Team';
+import { Services as DashboardServices } from './dashboard/pages/Services';
+import { Media } from './dashboard/pages/Media';
+import { Settings } from './dashboard/pages/Settings';
+import { Users } from './dashboard/pages/Users';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -26,20 +37,26 @@ const Loader = () => (
   </div>
 );
 
-// Page transition wrapper
+// Page transition wrapper for public pages
 const PageWrapper = ({ children }: { children: React.ReactNode }) => {
   const [isPageLoading, setIsPageLoading] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
+    // Only apply transitions to non-dashboard routes
+    if (location.pathname.startsWith('/dashboard')) {
+      setShowContent(true);
+      return;
+    }
+
     // Start page transition
     setIsPageLoading(true);
     setShowContent(false);
-    
+
     // Scroll to top immediately
     window.scrollTo(0, 0);
-    
+
     // Show loading for 800ms, then show content
     const loadingTimer = setTimeout(() => {
       setIsPageLoading(false);
@@ -52,8 +69,8 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => {
     return () => clearTimeout(loadingTimer);
   }, [location.pathname]);
 
-  if (isPageLoading) {
-    return <Loader />; // Use the single Loader component
+  if (isPageLoading && !location.pathname.startsWith('/dashboard')) {
+    return <Loader />;
   }
 
   return (
@@ -63,8 +80,25 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Main app content component
-const MainAppContent = () => {
+// Route wrapper component to conditionally show header/footer
+const RouteLayout = () => {
+  const location = useLocation();
+  const isDashboard = location.pathname.startsWith('/dashboard');
+
+  if (isDashboard) {
+    return null;
+  }
+
+  return (
+    <>
+      <Header />
+      <Footer />
+    </>
+  );
+};
+
+// Main app component
+const App = () => {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   useEffect(() => {
@@ -77,43 +111,134 @@ const MainAppContent = () => {
   }, []);
 
   if (isInitialLoading) {
-    return <Loader />; // Use the single Loader component
+    return <Loader />;
   }
 
   return (
     <Router>
-      <div className="min-h-screen bg-white">
-        <Header />
-        <main>
-          <PageWrapper>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/services" element={<Services />} />
-              <Route path="/team" element={<Team />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/resources" element={<Resources />} />
-              <Route path="/insights/:id" element={<InsightPost />} />
-              <Route path="/temp-register" element={<TempRegister />} />
-            </Routes>
-          </PageWrapper>
-        </main>
-        <Footer />
-      </div>
+      <AuthProvider>
+        <div className="min-h-screen bg-white">
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={
+              <>
+                <Header />
+                <main>
+                  <PageWrapper><Home /></PageWrapper>
+                </main>
+                <Footer />
+              </>
+            } />
+            <Route path="/about" element={
+              <>
+                <Header />
+                <main>
+                  <PageWrapper><About /></PageWrapper>
+                </main>
+                <Footer />
+              </>
+            } />
+            <Route path="/services" element={
+              <>
+                <Header />
+                <main>
+                  <PageWrapper><Services /></PageWrapper>
+                </main>
+                <Footer />
+              </>
+            } />
+            <Route path="/team" element={
+              <>
+                <Header />
+                <main>
+                  <PageWrapper><Team /></PageWrapper>
+                </main>
+                <Footer />
+              </>
+            } />
+            <Route path="/contact" element={
+              <>
+                <Header />
+                <main>
+                  <PageWrapper><Contact /></PageWrapper>
+                </main>
+                <Footer />
+              </>
+            } />
+            <Route path="/resources" element={
+              <>
+                <Header />
+                <main>
+                  <PageWrapper><Resources /></PageWrapper>
+                </main>
+                <Footer />
+              </>
+            } />
+            <Route path="/insights/:id" element={
+              <>
+                <Header />
+                <main>
+                  <PageWrapper><InsightPost /></PageWrapper>
+                </main>
+                <Footer />
+              </>
+            } />
+            <Route path="/temp-register" element={
+              <>
+                <Header />
+                <main>
+                  <PageWrapper><TempRegister /></PageWrapper>
+                </main>
+                <Footer />
+              </>
+            } />
+
+            {/* Dashboard routes */}
+            <Route path="/dashboard/login" element={<LoginForm />} />
+
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Dashboard />} />
+              <Route path="insights" element={<Insights />} />
+              <Route path="team" element={<DashboardTeam />} />
+              <Route path="services" element={<DashboardServices />} />
+              <Route path="media" element={<Media />} />
+              <Route path="users" element={<Users />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+          </Routes>
+
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#363636',
+                color: '#fff',
+              },
+              success: {
+                duration: 3000,
+                iconTheme: {
+                  primary: '#10b981',
+                  secondary: '#fff',
+                },
+              },
+              error: {
+                duration: 5000,
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#fff',
+                },
+              },
+            }}
+          />
+        </div>
+      </AuthProvider>
     </Router>
   );
 };
 
-// Root app component that handles conditional rendering
-const RootApp = () => {
-  // Check if we're in dashboard mode
-  const isDashboard = window.location.pathname.startsWith('/dashboard');
-
-  if (isDashboard) {
-    return <DashboardApp />;
-  }
-
-  return <MainAppContent />;
-};
-
-export default RootApp;
+export default App;
