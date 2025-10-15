@@ -6,6 +6,8 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { LoginForm } from './components/auth/LoginForm'
 import { Layout } from './components/common/Layout'
 import { Dashboard } from './pages/Dashboard'
+import { Insights } from './pages/Insights'
+import { Team } from './pages/Team'
 
 export const DashboardApp: React.FC = () => {
   return (
@@ -23,8 +25,8 @@ export const DashboardApp: React.FC = () => {
               </ProtectedRoute>
             }>
               <Route index element={<Dashboard />} />
-              <Route path="insights" element={<div>Insights (Coming Soon)</div>} />
-              <Route path="team" element={<div>Team (Coming Soon)</div>} />
+              <Route path="insights" element={<Insights />} />
+              <Route path="team" element={<Team />} />
               <Route path="services" element={<div>Services (Coming Soon)</div>} />
               <Route path="media" element={<div>Media (Coming Soon)</div>} />
               <Route path="settings" element={<div>Settings (Coming Soon)</div>} />
