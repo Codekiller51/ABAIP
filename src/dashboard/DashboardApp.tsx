@@ -8,6 +8,10 @@ import { Layout } from './components/common/Layout'
 import { Dashboard } from './pages/Dashboard'
 import { Insights } from './pages/Insights'
 import { Team } from './pages/Team'
+import { Services } from './pages/Services'
+import { Media } from './pages/Media'
+import { Settings } from './pages/Settings'
+import { Users } from './pages/Users'
 
 export const DashboardApp: React.FC = () => {
   return (
@@ -27,9 +31,10 @@ export const DashboardApp: React.FC = () => {
               <Route index element={<Dashboard />} />
               <Route path="insights" element={<Insights />} />
               <Route path="team" element={<Team />} />
-              <Route path="services" element={<div>Services (Coming Soon)</div>} />
-              <Route path="media" element={<div>Media (Coming Soon)</div>} />
-              <Route path="settings" element={<div>Settings (Coming Soon)</div>} />
+              <Route path="services" element={<Services />} />
+              <Route path="media" element={<Media />} />
+              <Route path="users" element={<Users />} />
+              <Route path="settings" element={<Settings />} />
             </Route>
 
             {/* Redirect root to dashboard */}

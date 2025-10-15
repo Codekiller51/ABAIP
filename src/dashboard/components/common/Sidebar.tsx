@@ -27,6 +27,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
     { name: 'Team', href: '/dashboard/team', icon: Users, roles: ['super_admin', 'content_manager'] },
     { name: 'Services', href: '/dashboard/services', icon: Briefcase, roles: ['super_admin', 'content_manager'] },
     { name: 'Media', href: '/dashboard/media', icon: Image, roles: ['super_admin', 'content_manager', 'editor'] },
+    { name: 'Users', href: '/dashboard/users', icon: Users, roles: ['super_admin'] },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings, roles: ['super_admin'] },
   ]
 
