@@ -11,15 +11,6 @@ import Contact from './pages/Contact';
 import Resources from './pages/Resources';
 import InsightPost from './pages/InsightPost';
 
-// Check if we're in dashboard mode
-const isDashboard = window.location.pathname.startsWith('/dashboard');
-
-// If dashboard, render dashboard app
-if (isDashboard) {
-  const DashboardRoot = () => <DashboardApp />;
-  export default DashboardRoot;
-}
-
 // Initial Loading Component (renamed from InitialLoader)
 const Loader = () => (
   <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
@@ -71,7 +62,8 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-function App() {
+// Main app content component
+const MainAppContent = () => {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   useEffect(() => {
@@ -108,6 +100,18 @@ function App() {
       </div>
     </Router>
   );
-}
+};
 
-export default App;
+// Root app component that handles conditional rendering
+const RootApp = () => {
+  // Check if we're in dashboard mode
+  const isDashboard = window.location.pathname.startsWith('/dashboard');
+
+  if (isDashboard) {
+    return <DashboardApp />;
+  }
+
+  return <MainAppContent />;
+};
+
+export default RootApp;

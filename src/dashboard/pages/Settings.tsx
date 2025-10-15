@@ -13,7 +13,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react'
-import { useAuth } from '../../hooks/useAuth'
+import { useAuth } from '../hooks/useAuth'
 import toast from 'react-hot-toast'
 
 export const Settings: React.FC = () => {

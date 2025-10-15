@@ -3,7 +3,7 @@ import { Plus, Search, Filter, CreditCard as Edit, Trash2, User, Mail, Shield, M
 import { supabase } from '../../lib/supabase'
 import { Database } from '../../lib/supabase'
 import { UserEditor } from '../components/users/UserEditor'
-import { useAuth } from '../../hooks/useAuth'
+import { useAuth } from '../hooks/useAuth'
 import toast from 'react-hot-toast'
 
 type User = Database['public']['Tables']['users']['Row']
