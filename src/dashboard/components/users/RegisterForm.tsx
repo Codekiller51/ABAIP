@@ -72,17 +72,27 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel 
         password: formData.password,
         options: {
           emailRedirectTo: `${window.location.origin}/login`,
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            role: formData.role,
-          },
         },
       })
 
       if (authError) throw authError
 
       if (authData.user) {
+        // Create user profile explicitly
+        const { error: profileError } = await supabase
+          .from('users')
+          .insert({
+            id: authData.user.id,
+            email: formData.email,
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            role: formData.role,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+
+        if (profileError) throw profileError
+
         toast.success('User registered successfully!')
         onSuccess?.()
       }
