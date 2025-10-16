@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'r
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './dashboard/components/auth/AuthProvider';
 import { ProtectedRoute } from './dashboard/components/auth/ProtectedRoute';
-import { LoginForm } from './dashboard/components/auth/LoginForm';
 import { Layout } from './dashboard/components/common/Layout';
 import { Dashboard } from './dashboard/pages/Dashboard';
 import { Insights } from './dashboard/pages/Insights';
@@ -21,7 +20,8 @@ import Team from './pages/Team';
 import Contact from './pages/Contact';
 import Resources from './pages/Resources';
 import InsightPost from './pages/InsightPost';
-import TempRegister from './pages/TempRegister';
+import Login from './pages/Login';
+import Register from './pages/Register';
 
 // Initial Loading Component (renamed from InitialLoader)
 const Loader = () => (
@@ -167,18 +167,13 @@ const App = () => {
                 <Footer />
               </>
             } />
-            <Route path="/temp-register" element={
-              <>
-                <Header />
-                <main>
-                  <PageWrapper><TempRegister /></PageWrapper>
-                </main>
-                <Footer />
-              </>
-            } />
+
+            {/* Authentication routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
             {/* Dashboard routes */}
-            <Route path="/dashboard/login" element={<LoginForm />} />
+            <Route path="/dashboard/login" element={<Login />} />
 
             <Route path="/dashboard" element={
               <ProtectedRoute>

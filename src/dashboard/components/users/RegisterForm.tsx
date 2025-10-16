@@ -1,23 +1,7 @@
 import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from 'yup'
 import { supabase } from '../../../lib/supabase'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff, Loader2, Mail, Lock, User, UserCog } from 'lucide-react'
-
-const schema = yup.object({
-  email: yup.string().email('Invalid email').required('Email is required'),
-  password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
-  confirmPassword: yup.string()
-    .oneOf([yup.ref('password')], 'Passwords must match')
-    .required('Please confirm your password'),
-  firstName: yup.string().required('First name is required'),
-  lastName: yup.string().required('Last name is required'),
-  role: yup.string().oneOf(['super_admin', 'content_manager', 'editor']).required('Role is required'),
-})
-
-type FormData = yup.InferType<typeof schema>
 
 interface RegisterFormProps {
   onSuccess?: () => void
@@ -25,33 +9,74 @@ interface RegisterFormProps {
 }
 
 export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel }) => {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    firstName: '',
+    lastName: '',
+    role: 'editor' as 'super_admin' | 'content_manager' | 'editor',
+  })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-  } = useForm<FormData>({
-    resolver: yupResolver(schema),
-    defaultValues: {
-      role: 'editor',
-    },
-  })
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
 
-  const onSubmit = async (data: FormData) => {
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'First name is required'
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Last name is required'
+    }
+
+    if (!formData.email) {
+      newErrors.email = 'Email is required'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Invalid email format'
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required'
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters'
+    }
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password'
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match'
+    }
+
+    if (!formData.role) {
+      newErrors.role = 'Role is required'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!validateForm()) return
+
+    setIsSubmitting(true)
+
     try {
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
+        email: formData.email,
+        password: formData.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard/login`,
+          emailRedirectTo: `${window.location.origin}/login`,
           data: {
-            first_name: data.firstName,
-            last_name: data.lastName,
-            role: data.role,
-          }
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            role: formData.role,
+          },
         },
       })
 
@@ -59,17 +84,25 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel 
 
       if (authData.user) {
         toast.success('User registered successfully!')
-        reset()
         onSuccess?.()
       }
     } catch (error: any) {
       console.error('Registration error:', error)
       toast.error(error.message || 'Failed to register user')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: '' }))
     }
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="firstName" className="block text-sm font-medium text-neutral-700 mb-2">
@@ -80,15 +113,15 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel 
               <User className="h-5 w-5 text-neutral-400" />
             </div>
             <input
-              {...register('firstName')}
+              id="firstName"
               type="text"
-              className="block w-full pl-10 pr-3 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+              value={formData.firstName}
+              onChange={(e) => handleChange('firstName', e.target.value)}
+              className="block w-full pl-10 pr-3 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
               placeholder="Enter first name"
             />
           </div>
-          {errors.firstName && (
-            <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>
-          )}
+          {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
         </div>
 
         <div>
@@ -100,15 +133,15 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel 
               <User className="h-5 w-5 text-neutral-400" />
             </div>
             <input
-              {...register('lastName')}
+              id="lastName"
               type="text"
-              className="block w-full pl-10 pr-3 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+              value={formData.lastName}
+              onChange={(e) => handleChange('lastName', e.target.value)}
+              className="block w-full pl-10 pr-3 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
               placeholder="Enter last name"
             />
           </div>
-          {errors.lastName && (
-            <p className="mt-1 text-sm text-red-600">{errors.lastName.message}</p>
-          )}
+          {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
         </div>
       </div>
 
@@ -121,15 +154,15 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel 
             <Mail className="h-5 w-5 text-neutral-400" />
           </div>
           <input
-            {...register('email')}
+            id="email"
             type="email"
-            className="block w-full pl-10 pr-3 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+            value={formData.email}
+            onChange={(e) => handleChange('email', e.target.value)}
+            className="block w-full pl-10 pr-3 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
             placeholder="Enter email address"
           />
         </div>
-        {errors.email && (
-          <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-        )}
+        {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
       </div>
 
       <div>
@@ -141,19 +174,19 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel 
             <UserCog className="h-5 w-5 text-neutral-400" />
           </div>
           <select
-            {...register('role')}
-            className="block w-full pl-10 pr-3 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 appearance-none bg-white"
+            id="role"
+            value={formData.role}
+            onChange={(e) => handleChange('role', e.target.value)}
+            className="block w-full pl-10 pr-3 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all appearance-none bg-white"
           >
             <option value="editor">Editor</option>
             <option value="content_manager">Content Manager</option>
             <option value="super_admin">Super Admin</option>
           </select>
         </div>
-        {errors.role && (
-          <p className="mt-1 text-sm text-red-600">{errors.role.message}</p>
-        )}
+        {errors.role && <p className="mt-1 text-sm text-red-600">{errors.role}</p>}
         <p className="mt-1 text-xs text-neutral-500">
-          Editor: Can manage insights and media. Content Manager: Can manage all content. Super Admin: Full access.
+          Editor: Manage insights and media. Content Manager: Manage all content. Super Admin: Full access.
         </p>
       </div>
 
@@ -166,9 +199,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel 
             <Lock className="h-5 w-5 text-neutral-400" />
           </div>
           <input
-            {...register('password')}
+            id="password"
             type={showPassword ? 'text' : 'password'}
-            className="block w-full pl-10 pr-10 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+            value={formData.password}
+            onChange={(e) => handleChange('password', e.target.value)}
+            className="block w-full pl-10 pr-10 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
             placeholder="Enter password"
           />
           <button
@@ -183,9 +218,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel 
             )}
           </button>
         </div>
-        {errors.password && (
-          <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
-        )}
+        {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
       </div>
 
       <div>
@@ -197,9 +230,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel 
             <Lock className="h-5 w-5 text-neutral-400" />
           </div>
           <input
-            {...register('confirmPassword')}
+            id="confirmPassword"
             type={showConfirmPassword ? 'text' : 'password'}
-            className="block w-full pl-10 pr-10 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+            value={formData.confirmPassword}
+            onChange={(e) => handleChange('confirmPassword', e.target.value)}
+            className="block w-full pl-10 pr-10 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
             placeholder="Confirm password"
           />
           <button
@@ -214,9 +249,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel 
             )}
           </button>
         </div>
-        {errors.confirmPassword && (
-          <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
-        )}
+        {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
       </div>
 
       <div className="flex space-x-4">
@@ -224,7 +257,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel 
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 py-3 px-4 border border-neutral-300 rounded-xl text-neutral-700 font-medium hover:bg-neutral-50 transition-colors duration-200"
+            className="flex-1 py-3 px-4 border border-neutral-300 rounded-lg text-neutral-700 font-medium hover:bg-neutral-50 transition-colors"
           >
             Cancel
           </button>
@@ -232,13 +265,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex-1 bg-gradient-to-r from-primary-600 to-primary-700 text-white py-3 px-4 rounded-xl font-medium hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+          className="flex-1 bg-gradient-to-r from-primary-600 to-primary-700 text-white py-3 px-4 rounded-lg font-medium hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
-          {isSubmitting ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            <span>Create User</span>
-          )}
+          {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Create User'}
         </button>
       </div>
     </form>
