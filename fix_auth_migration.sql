@@ -78,9 +78,17 @@ CREATE TRIGGER update_users_updated_at
 -- Create a function to handle new user creation
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+  user_first_name text;
+  user_last_name text;
+  user_role user_role;
 BEGIN
-  INSERT INTO public.users (id, email, first_name, last_name, created_at, updated_at)
-  VALUES (NEW.id, NEW.email, '', '', now(), now());
+  user_first_name := COALESCE(NEW.raw_user_meta_data->>'first_name', '');
+  user_last_name := COALESCE(NEW.raw_user_meta_data->>'last_name', '');
+  user_role := COALESCE((NEW.raw_user_meta_data->>'role')::user_role, 'editor');
+
+  INSERT INTO public.users (id, email, first_name, last_name, role, created_at, updated_at)
+  VALUES (NEW.id, NEW.email, user_first_name, user_last_name, user_role, now(), now());
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

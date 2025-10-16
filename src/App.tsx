@@ -80,22 +80,6 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Route wrapper component to conditionally show header/footer
-const RouteLayout = () => {
-  const location = useLocation();
-  const isDashboard = location.pathname.startsWith('/dashboard');
-
-  if (isDashboard) {
-    return null;
-  }
-
-  return (
-    <>
-      <Header />
-      <Footer />
-    </>
-  );
-};
 
 // Main app component
 const App = () => {

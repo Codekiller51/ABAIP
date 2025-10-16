@@ -73,14 +73,7 @@ export const useAuthProvider = () => {
 
   const fetchUserProfile = async (userId: string) => {
     try {
-      console.log('Fetching user profile for ID:', userId)
-      
-      const { data: authUser, error: authError } = await supabase.auth.getUser()
-      if (authError) {
-        console.error('Error getting auth user:', authError)
-        throw authError
-      }
-      console.log('Auth user fetched successfully:', authUser)
+      const { data: authUser } = await supabase.auth.getUser()
 
       const { data, error } = await supabase
         .from('users')
@@ -89,68 +82,47 @@ export const useAuthProvider = () => {
         .maybeSingle()
 
       if (error) {
-        console.error('Error fetching user from users table:', error)
         throw error
       }
-      console.log('User data fetch result:', data)
 
       if (!data) {
-        console.log('No user profile found, creating new profile')
-        const newUserData = {
-          id: userId,
-          email: authUser?.user?.email || '',
-          first_name: '',
-          last_name: '',
-          role: 'editor',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-        console.log('Attempting to create new user with data:', newUserData)
-
         const { data: newUser, error: createError } = await supabase
           .from('users')
-          .insert(newUserData)
+          .insert({
+            id: userId,
+            email: authUser?.user?.email || '',
+            first_name: '',
+            last_name: '',
+            role: 'editor',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
           .select()
           .single()
 
-        if (createError) {
-          console.error('Error creating new user profile:', createError)
-          throw createError
-        }
-        console.log('New user profile created successfully:', newUser)
+        if (createError) throw createError
 
-        const userProfile = {
+        setUser({
           ...authUser?.user,
           role: newUser.role,
           first_name: newUser.first_name,
           last_name: newUser.last_name,
           avatar_url: newUser.avatar_url,
-        } as AuthUser
-        
-        setUser(userProfile)
-        console.log('User profile set successfully:', userProfile)
+        } as AuthUser)
         setLoading(false)
         return
       }
 
-      const userProfile = {
+      setUser({
         ...authUser?.user,
         role: data.role,
         first_name: data.first_name,
         last_name: data.last_name,
         avatar_url: data.avatar_url,
-      } as AuthUser
-      
-      setUser(userProfile)
-      console.log('Existing user profile set successfully:', userProfile)
+      } as AuthUser)
     } catch (error) {
-      console.error('Error in fetchUserProfile:', error)
-      if (error instanceof Error) {
-        console.error('Error details:', error.message)
-        toast.error(`Failed to load user profile: ${error.message}`)
-      } else {
-        toast.error('Failed to load user profile: Unknown error')
-      }
+      console.error('Error fetching user profile:', error)
+      toast.error('Failed to load user profile')
     } finally {
       setLoading(false)
     }

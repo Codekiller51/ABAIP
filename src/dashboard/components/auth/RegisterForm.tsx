@@ -58,21 +58,6 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel 
       if (authError) throw authError
 
       if (authData.user) {
-        await new Promise(resolve => setTimeout(resolve, 1000))
-
-        const { error: updateError } = await supabase
-          .from('users')
-          .update({
-            first_name: data.firstName,
-            last_name: data.lastName,
-            role: data.role,
-          })
-          .eq('id', authData.user.id)
-
-        if (updateError) {
-          console.warn('Could not update user profile immediately:', updateError)
-        }
-
         toast.success('User registered successfully!')
         reset()
         onSuccess?.()
