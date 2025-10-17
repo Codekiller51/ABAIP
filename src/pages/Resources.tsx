@@ -1,21 +1,49 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, User, ArrowRight, Download, BookOpen, FileText, Star, TrendingUp, Zap, Play, Eye, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { insights } from '../data/insights';
+import { supabase } from '../lib/supabase';
 
 const Resources = () => {
-  // Use the insights data for the articles section
-  const articles = insights.map(insight => ({
-    title: insight.title,
-    excerpt: insight.summary,
-    author: insight.author,
-    date: insight.date,
-    category: 'Insight', // You can categorize them as 'Insight' or 'Blog Post'
-    readTime: '5 min read', // Placeholder, you might want to calculate this dynamically
-    featured: false, // You can add a featured property to your insights data if needed
-    image: 'https://images.pexels.com/photos/5668473/pexels-photo-5668473.jpeg', // Placeholder image
-    id: insight.id,
-  }));
+  const [articles, setArticles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchInsights();
+  }, []);
+
+  const fetchInsights = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('insights')
+        .select('*')
+        .eq('status', 'published')
+        .order('published_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedArticles = (data || []).map(insight => ({
+        title: insight.title,
+        excerpt: insight.summary,
+        author: insight.author,
+        date: new Date(insight.published_at || insight.created_at).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }),
+        category: insight.categories?.[0] || 'Insight',
+        readTime: `${Math.ceil(insight.content.length / 1000)} min read`,
+        featured: insight.featured,
+        image: insight.image_url || 'https://images.pexels.com/photos/5668473/pexels-photo-5668473.jpeg',
+        id: insight.slug,
+      }));
+
+      setArticles(formattedArticles);
+    } catch (error) {
+      console.error('Error fetching insights:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const resources = [
     {

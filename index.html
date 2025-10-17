@@ -12,18 +12,42 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!--Start of Tawk.to Script--> 
-    <script type="text/javascript"> 
-    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date(); 
-    (function(){ 
-    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0]; 
-    s1.async=true; 
-    s1.src='https://embed.tawk.to/68b703ab721af15d8752d6d1/1j45ecmi3'; 
-    s1.charset='UTF-8'; 
-    s1.setAttribute('crossorigin','*'); 
-    s0.parentNode.insertBefore(s1,s0); 
-    })(); 
-    </script> 
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+
+    (function(){
+      var shouldShowChat = function() {
+        var path = window.location.pathname;
+        return !path.startsWith('/dashboard') && !path.startsWith('/login') && !path.startsWith('/register');
+      };
+
+      if (!shouldShowChat()) {
+        Tawk_API.hideWidget = function() {
+          var iframe = document.getElementById('tawk-widget-container');
+          if (iframe) iframe.style.display = 'none';
+        };
+        Tawk_API.onLoad = function() {
+          Tawk_API.hideWidget();
+        };
+      }
+
+      var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+      s1.async=true;
+      s1.src='https://embed.tawk.to/68b703ab721af15d8752d6d1/1j45ecmi3';
+      s1.charset='UTF-8';
+      s1.setAttribute('crossorigin','*');
+      s0.parentNode.insertBefore(s1,s0);
+
+      window.addEventListener('popstate', function() {
+        if (shouldShowChat() && Tawk_API.showWidget) {
+          Tawk_API.showWidget();
+        } else if (Tawk_API.hideWidget) {
+          Tawk_API.hideWidget();
+        }
+      });
+    })();
+    </script>
     <!--End of Tawk.to Script-->
   </body>
 </html>

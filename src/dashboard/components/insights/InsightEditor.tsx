@@ -24,6 +24,7 @@ import { supabase } from '../../../lib/supabase'
 import { Database } from '../../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
 import { ImageUploader } from './ImageUploader'
+import { RichTextEditor } from './RichTextEditor'
 import toast from 'react-hot-toast'
 
 type Insight = Database['public']['Tables']['insights']['Row']
@@ -376,7 +377,7 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
                     <input
                       {...register('title')}
                       type="text"
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-4 py-3 border border-neutral-300 rounded-xl bg-white text-neutral-900 placeholder-neutral-400 transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 hover:border-primary-300"
                       placeholder="Enter insight title..."
                     />
                     {errors.title && (
@@ -392,7 +393,7 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
                     <input
                       {...register('slug')}
                       type="text"
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-4 py-3 border border-neutral-300 rounded-xl bg-white text-neutral-900 placeholder-neutral-400 transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 hover:border-primary-300"
                       placeholder="url-friendly-slug"
                     />
                     {errors.slug && (
@@ -408,7 +409,7 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
                     <input
                       {...register('author')}
                       type="text"
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-4 py-3 border border-neutral-300 rounded-xl bg-white text-neutral-900 placeholder-neutral-400 transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 hover:border-primary-300"
                       placeholder="Author name"
                     />
                     {errors.author && (
@@ -424,7 +425,7 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
                     <textarea
                       {...register('summary')}
                       rows={3}
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-4 py-3 border border-neutral-300 rounded-xl bg-white text-neutral-900 placeholder-neutral-400 transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 hover:border-primary-300 resize-none"
                       placeholder="Brief summary of the insight..."
                     />
                     {errors.summary && (
@@ -437,100 +438,12 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
                       Content *
                     </label>
-
-                    {/* Formatting Toolbar */}
-                    <div className="flex items-center space-x-1 mb-2 p-2 bg-neutral-50 border border-neutral-300 rounded-lg">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement
-                          insertFormatting('bold', textarea)
-                        }}
-                        className="p-2 rounded hover:bg-neutral-200 transition-colors"
-                        title="Bold"
-                      >
-                        <Bold className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement
-                          insertFormatting('italic', textarea)
-                        }}
-                        className="p-2 rounded hover:bg-neutral-200 transition-colors"
-                        title="Italic"
-                      >
-                        <Italic className="h-4 w-4" />
-                      </button>
-                      <div className="w-px h-6 bg-neutral-300 mx-1" />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement
-                          insertFormatting('h2', textarea)
-                        }}
-                        className="px-2 py-1 rounded hover:bg-neutral-200 transition-colors text-sm font-semibold"
-                        title="Heading 2"
-                      >
-                        H2
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement
-                          insertFormatting('h3', textarea)
-                        }}
-                        className="px-2 py-1 rounded hover:bg-neutral-200 transition-colors text-sm font-semibold"
-                        title="Heading 3"
-                      >
-                        H3
-                      </button>
-                      <div className="w-px h-6 bg-neutral-300 mx-1" />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement
-                          insertFormatting('ul', textarea)
-                        }}
-                        className="p-2 rounded hover:bg-neutral-200 transition-colors"
-                        title="Bullet List"
-                      >
-                        <List className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement
-                          insertFormatting('link', textarea)
-                        }}
-                        className="p-2 rounded hover:bg-neutral-200 transition-colors"
-                        title="Link"
-                      >
-                        <LinkIcon className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement
-                          insertFormatting('code', textarea)
-                        }}
-                        className="p-2 rounded hover:bg-neutral-200 transition-colors"
-                        title="Code"
-                      >
-                        <Code className="h-4 w-4" />
-                      </button>
-                    </div>
-
-                    <textarea
-                      {...register('content')}
-                      id="content-textarea"
-                      rows={12}
-                      className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono text-sm"
-                      placeholder="Write your insight content here... (HTML supported)"
+                    <RichTextEditor
+                      value={watch('content') || ''}
+                      onChange={(content) => setValue('content', content)}
+                      placeholder="Write your insight content here..."
+                      error={errors.content?.message}
                     />
-                    {errors.content && (
-                      <p className="mt-1 text-sm text-red-600">{errors.content.message}</p>
-                    )}
                   </div>
 
                   {/* Featured Image */}

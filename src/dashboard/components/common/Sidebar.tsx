@@ -1,14 +1,16 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { 
-  Scale, 
-  LayoutDashboard, 
-  FileText, 
-  Users, 
-  Briefcase, 
-  Image, 
+import {
+  Scale,
+  LayoutDashboard,
+  FileText,
+  Users,
+  Briefcase,
+  Image,
   Settings,
-  X
+  X,
+  MessageSquare,
+  Home
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 
@@ -27,6 +29,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
     { name: 'Team', href: '/dashboard/team', icon: Users, roles: ['super_admin', 'content_manager'] },
     { name: 'Services', href: '/dashboard/services', icon: Briefcase, roles: ['super_admin', 'content_manager'] },
     { name: 'Media', href: '/dashboard/media', icon: Image, roles: ['super_admin', 'content_manager', 'editor'] },
+    { name: 'Contact Messages', href: '/dashboard/contact-messages', icon: MessageSquare, roles: ['super_admin', 'content_manager'] },
     { name: 'Users', href: '/dashboard/users', icon: Users, roles: ['super_admin'] },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings, roles: ['super_admin'] },
   ]
@@ -79,6 +82,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
 
           {/* Navigation */}
           <nav className="flex-1 px-6 py-6">
+            <Link
+              to="/"
+              target="_blank"
+              className="mb-4 group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 border-2 border-dashed border-neutral-300 hover:border-neutral-400"
+            >
+              <Home className="mr-3 h-5 w-5 flex-shrink-0 text-neutral-400 group-hover:text-neutral-500 transition-colors duration-200" />
+              Back to Website
+            </Link>
+
             <ul className="space-y-2">
               {filteredNavigation.map((item) => (
                 <li key={item.name}>

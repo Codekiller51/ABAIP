@@ -30,12 +30,25 @@ const Contact = () => {
     setSubmitStatus({ type: null, message: '' });
 
     try {
-      // Simulate form submission for now
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setSubmitStatus({ 
-        type: 'success', 
-        message: 'Thank you for your message. We will contact you within 24 hours!' 
+      const { default: supabase } = await import('../lib/supabase');
+
+      const { error } = await supabase.supabase
+        .from('contact_messages')
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          company: formData.company || null,
+          phone: formData.phone || null,
+          subject: formData.subject,
+          message: formData.message,
+          is_read: false
+        });
+
+      if (error) throw error;
+
+      setSubmitStatus({
+        type: 'success',
+        message: 'Thank you for your message. We will contact you within 24 hours!'
       });
       setFormData({
         name: '',
@@ -46,9 +59,10 @@ const Contact = () => {
         message: ''
       });
     } catch (error) {
-      setSubmitStatus({ 
-        type: 'error', 
-        message: 'An unexpected error occurred. Please try again.' 
+      console.error('Error submitting contact form:', error);
+      setSubmitStatus({
+        type: 'error',
+        message: 'An unexpected error occurred. Please try again.'
       });
     } finally {
       setIsSubmitting(false);

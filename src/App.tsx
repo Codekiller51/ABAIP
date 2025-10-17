@@ -11,6 +11,7 @@ import { Services as DashboardServices } from './dashboard/pages/Services';
 import { Media } from './dashboard/pages/Media';
 import { Settings } from './dashboard/pages/Settings';
 import { Users } from './dashboard/pages/Users';
+import { ContactMessages } from './dashboard/pages/ContactMessages';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -185,6 +186,7 @@ const App = () => {
               <Route path="team" element={<DashboardTeam />} />
               <Route path="services" element={<DashboardServices />} />
               <Route path="media" element={<Media />} />
+              <Route path="contact-messages" element={<ContactMessages />} />
               <Route path="users" element={<Users />} />
               <Route path="settings" element={<Settings />} />
             </Route>

@@ -216,7 +216,7 @@ export const ServiceEditor: React.FC<ServiceEditorProps> = ({
                   <input
                     {...register('title')}
                     type="text"
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl bg-white text-neutral-900 placeholder-neutral-400 transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 hover:border-primary-300"
                     placeholder="Enter service title..."
                   />
                   {errors.title && (
@@ -232,7 +232,7 @@ export const ServiceEditor: React.FC<ServiceEditorProps> = ({
                   <textarea
                     {...register('description')}
                     rows={4}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl bg-white text-neutral-900 placeholder-neutral-400 transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 hover:border-primary-300 resize-none"
                     placeholder="Describe the service..."
                   />
                   {errors.description && (
@@ -255,7 +255,7 @@ export const ServiceEditor: React.FC<ServiceEditorProps> = ({
                   </label>
                   <select
                     {...register('icon')}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl bg-white text-neutral-900 transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 hover:border-primary-300"
                   >
                     {iconOptions.map((icon) => (
                       <option key={icon} value={icon}>
@@ -307,7 +307,7 @@ export const ServiceEditor: React.FC<ServiceEditorProps> = ({
                   <input
                     {...register('image_url')}
                     type="url"
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl bg-white text-neutral-900 placeholder-neutral-400 transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 hover:border-primary-300"
                     placeholder="https://example.com/service-image.jpg"
                   />
                   {errors.image_url && (

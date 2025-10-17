@@ -1,11 +1,69 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { insights } from '../data/insights';
+import { supabase } from '../lib/supabase';
 import { ArrowLeft } from 'lucide-react';
 
 const InsightPost = () => {
   const { id } = useParams<{ id: string }>();
-  const insight = insights.find(i => i.id === id);
+  const [insight, setInsight] = useState<any>(null);
+  const [relatedInsights, setRelatedInsights] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchInsight();
+  }, [id]);
+
+  const fetchInsight = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('insights')
+        .select('*')
+        .eq('slug', id)
+        .eq('status', 'published')
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        setInsight({
+          ...data,
+          date: new Date(data.published_at || data.created_at).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })
+        });
+
+        const { data: related } = await supabase
+          .from('insights')
+          .select('*')
+          .eq('status', 'published')
+          .neq('slug', id)
+          .limit(3);
+
+        setRelatedInsights((related || []).map(r => ({
+          ...r,
+          date: new Date(r.published_at || r.created_at).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })
+        })));
+      }
+    } catch (error) {
+      console.error('Error fetching insight:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+      </div>
+    );
+  }
 
   if (!insight) {
     return (
@@ -19,9 +77,6 @@ const InsightPost = () => {
       </div>
     );
   }
-
-  // Filter out the current insight for related insights
-  const relatedInsights = insights.filter(i => i.id !== id).slice(0, 3); // Get up to 3 related insights
 
   return (
     <div className="bg-white">
