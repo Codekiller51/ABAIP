@@ -1,48 +1,102 @@
-import React from 'react'
-import { 
-  FileText, 
-  Users, 
-  Briefcase, 
-  Image, 
-  TrendingUp, 
+import React, { useState, useEffect } from 'react'
+import {
+  FileText,
+  Users,
+  Briefcase,
+  Image,
+  TrendingUp,
   Eye,
   Calendar,
   Activity
 } from 'lucide-react'
+import { supabase } from '../../lib/supabase'
+import { useAuth } from '../hooks/useAuth'
+
+interface Stats {
+  insights: number
+  teamMembers: number
+  services: number
+  mediaFiles: number
+  publishedInsights: number
+  draftInsights: number
+}
 
 export const Dashboard: React.FC = () => {
-  const stats = [
+  const { user } = useAuth()
+  const [stats, setStats] = useState<Stats>({
+    insights: 0,
+    teamMembers: 0,
+    services: 0,
+    mediaFiles: 0,
+    publishedInsights: 0,
+    draftInsights: 0
+  })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchStats()
+  }, [])
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true)
+
+      const [insightsRes, teamRes, servicesRes, mediaRes, publishedRes, draftsRes] = await Promise.all([
+        supabase.from('insights').select('id', { count: 'exact', head: true }),
+        supabase.from('team_members').select('id', { count: 'exact', head: true }),
+        supabase.from('services').select('id', { count: 'exact', head: true }),
+        supabase.from('media').select('id', { count: 'exact', head: true }),
+        supabase.from('insights').select('id', { count: 'exact', head: true }).eq('status', 'published'),
+        supabase.from('insights').select('id', { count: 'exact', head: true }).eq('status', 'draft')
+      ])
+
+      setStats({
+        insights: insightsRes.count || 0,
+        teamMembers: teamRes.count || 0,
+        services: servicesRes.count || 0,
+        mediaFiles: mediaRes.count || 0,
+        publishedInsights: publishedRes.count || 0,
+        draftInsights: draftsRes.count || 0
+      })
+    } catch (error) {
+      console.error('Error fetching stats:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const statsDisplay = [
     {
       name: 'Total Insights',
-      value: '12',
-      change: '+2 this month',
+      value: loading ? '...' : stats.insights.toString(),
+      change: `${stats.publishedInsights} published`,
       changeType: 'positive',
       icon: FileText,
       color: 'bg-blue-500'
     },
     {
       name: 'Team Members',
-      value: '8',
-      change: '+1 this month',
+      value: loading ? '...' : stats.teamMembers.toString(),
+      change: 'Active profiles',
       changeType: 'positive',
       icon: Users,
       color: 'bg-green-500'
     },
     {
       name: 'Services',
-      value: '6',
-      change: 'No change',
+      value: loading ? '...' : stats.services.toString(),
+      change: 'Service offerings',
       changeType: 'neutral',
       icon: Briefcase,
-      color: 'bg-purple-500'
+      color: 'bg-orange-500'
     },
     {
       name: 'Media Files',
-      value: '156',
-      change: '+23 this month',
+      value: loading ? '...' : stats.mediaFiles.toString(),
+      change: 'Files in library',
       changeType: 'positive',
       icon: Image,
-      color: 'bg-orange-500'
+      color: 'bg-purple-500'
     }
   ]
 
@@ -50,30 +104,9 @@ export const Dashboard: React.FC = () => {
     {
       id: 1,
       type: 'insight',
-      title: 'New insight published: "Patent Law Updates"',
-      time: '2 hours ago',
-      user: 'Angela Malando'
-    },
-    {
-      id: 2,
-      type: 'team',
-      title: 'Team member profile updated',
-      time: '1 day ago',
-      user: 'System'
-    },
-    {
-      id: 3,
-      type: 'media',
-      title: '5 new images uploaded',
-      time: '2 days ago',
-      user: 'Angela Malando'
-    },
-    {
-      id: 4,
-      type: 'service',
-      title: 'Service description updated',
-      time: '3 days ago',
-      user: 'Angela Malando'
+      title: 'Dashboard connected to live data',
+      time: 'Just now',
+      user: user ? `${user.first_name} ${user.last_name}` : 'System'
     }
   ]
 
@@ -89,7 +122,7 @@ export const Dashboard: React.FC = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
+        {statsDisplay.map((stat) => (
           <div
             key={stat.name}
             className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 hover:shadow-md transition-shadow duration-200"
@@ -190,24 +223,24 @@ export const Dashboard: React.FC = () => {
           <h2 className="text-xl font-semibold text-neutral-900">Content Overview</h2>
           <Eye className="h-5 w-5 text-neutral-400" />
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center p-4 bg-neutral-50 rounded-lg">
             <Calendar className="h-8 w-8 text-primary-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-neutral-900">3</p>
-            <p className="text-sm text-neutral-600">Scheduled Posts</p>
+            <p className="text-2xl font-bold text-neutral-900">{loading ? '...' : stats.draftInsights}</p>
+            <p className="text-sm text-neutral-600">Draft Insights</p>
           </div>
-          
+
           <div className="text-center p-4 bg-neutral-50 rounded-lg">
             <FileText className="h-8 w-8 text-green-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-neutral-900">8</p>
+            <p className="text-2xl font-bold text-neutral-900">{loading ? '...' : stats.publishedInsights}</p>
             <p className="text-sm text-neutral-600">Published Insights</p>
           </div>
-          
+
           <div className="text-center p-4 bg-neutral-50 rounded-lg">
             <TrendingUp className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-neutral-900">1.2k</p>
-            <p className="text-sm text-neutral-600">Total Views</p>
+            <p className="text-2xl font-bold text-neutral-900">{loading ? '...' : stats.insights}</p>
+            <p className="text-sm text-neutral-600">Total Content</p>
           </div>
         </div>
       </div>

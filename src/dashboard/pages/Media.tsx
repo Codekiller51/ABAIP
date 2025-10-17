@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Upload, Search, Filter, Image as ImageIcon, File, Trash2, Download, Eye, Folder, Grid2x2 as Grid, List, MoreHorizontal, Plus, X } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { Database } from '../../lib/supabase'
+import { UploadModal } from '../components/media/UploadModal'
 import toast from 'react-hot-toast'
 
 type MediaFile = Database['public']['Tables']['media']['Row']
@@ -518,32 +519,15 @@ export const Media: React.FC = () => {
 
       {/* Upload Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 z-50 overflow-hidden">
-          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setShowUploadModal(false)} />
-          <div className="absolute inset-y-0 right-0 max-w-lg w-full bg-white shadow-xl">
-            <div className="flex flex-col h-full">
-              <div className="flex items-center justify-between p-6 border-b border-neutral-200">
-                <h2 className="text-xl font-semibold text-neutral-900">Upload Files</h2>
-                <button
-                  onClick={() => setShowUploadModal(false)}
-                  className="p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition-colors duration-200"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              <div className="flex-1 p-6">
-                <div className="border-2 border-dashed border-neutral-300 rounded-lg p-12 text-center">
-                  <Upload className="h-12 w-12 text-neutral-400 mx-auto mb-4" />
-                  <p className="text-lg font-medium text-neutral-900 mb-2">Upload files</p>
-                  <p className="text-neutral-600 mb-6">Drag and drop files here, or click to browse</p>
-                  <button className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-colors duration-200">
-                    Choose Files
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <UploadModal
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onUploadComplete={(files) => {
+            setMediaFiles([...files, ...mediaFiles])
+            setShowUploadModal(false)
+          }}
+          folder={folderFilter !== 'all' && folderFilter !== 'root' ? folderFilter : undefined}
+        />
       )}
 
       {/* Create Folder Modal */}

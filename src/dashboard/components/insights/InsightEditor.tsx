@@ -229,8 +229,8 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
     }
   }
 
-  const onSubmit = (data: FormData) => {
-    handleSubmit(data, publishAction)
+  const onSubmit = async (data: FormData) => {
+    await handleSubmit(data, publishAction)
   }
 
   const insertFormatting = (tag: string, textarea: HTMLTextAreaElement) => {
@@ -364,7 +364,7 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
           </div>
 
           {/* Content */}
-          <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col">
+          <form onSubmit={formHandleSubmit(onSubmit)} className="flex-1 flex flex-col">
             <div className="flex-1 overflow-y-auto p-6">
               {activeTab === 'content' && (
                 <div className="space-y-6">
@@ -775,9 +775,9 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
 
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={async () => {
                       setPublishAction('draft')
-                      handleSubmit(getValues(), 'draft')
+                      await formHandleSubmit((data) => handleSubmit(data, 'draft'))()
                     }}
                     disabled={isSubmitting}
                     className="px-6 py-2 text-neutral-700 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
@@ -788,13 +788,14 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
 
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={async () => {
                       if (schedulePublish && !getValues('scheduled_publish_at')) {
                         toast.error('Please select a publish date and time')
                         return
                       }
-                      setPublishAction(schedulePublish ? 'schedule' : 'publish')
-                      handleSubmit(getValues(), schedulePublish ? 'schedule' : 'publish')
+                      const action = schedulePublish ? 'schedule' : 'publish'
+                      setPublishAction(action)
+                      await formHandleSubmit((data) => handleSubmit(data, action))()
                     }}
                     disabled={isSubmitting}
                     className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
