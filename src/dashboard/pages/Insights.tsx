@@ -178,6 +178,63 @@ export const Insights: React.FC = () => {
         </button>
       </div>
 
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-600">Total Insights</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-2">{insights.length}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-blue-100">
+              <FileText className="h-6 w-6 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-600">Published</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-2">
+                {insights.filter(i => i.status === 'published').length}
+              </p>
+            </div>
+            <div className="p-3 rounded-lg bg-green-100">
+              <Eye className="h-6 w-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-600">Drafts</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-2">
+                {insights.filter(i => i.status === 'draft').length}
+              </p>
+            </div>
+            <div className="p-3 rounded-lg bg-yellow-100">
+              <Clock className="h-6 w-6 text-yellow-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-600">Featured</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-2">
+                {insights.filter(i => i.featured).length}
+              </p>
+            </div>
+            <div className="p-3 rounded-lg bg-orange-100">
+              <Star className="h-6 w-6 text-orange-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Filters and Search */}
       <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
         <div className="flex flex-col sm:flex-row gap-4">
@@ -384,63 +441,6 @@ export const Insights: React.FC = () => {
             </table>
           </div>
         )}
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600">Total Insights</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-2">{insights.length}</p>
-            </div>
-            <div className="p-3 rounded-lg bg-blue-100">
-              <FileText className="h-6 w-6 text-blue-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600">Published</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-2">
-                {insights.filter(i => i.status === 'published').length}
-              </p>
-            </div>
-            <div className="p-3 rounded-lg bg-green-100">
-              <Eye className="h-6 w-6 text-green-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600">Drafts</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-2">
-                {insights.filter(i => i.status === 'draft').length}
-              </p>
-            </div>
-            <div className="p-3 rounded-lg bg-yellow-100">
-              <Clock className="h-6 w-6 text-yellow-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600">Featured</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-2">
-                {insights.filter(i => i.featured).length}
-              </p>
-            </div>
-            <div className="p-3 rounded-lg bg-orange-100">
-              <Star className="h-6 w-6 text-orange-600" />
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Insight Editor */}

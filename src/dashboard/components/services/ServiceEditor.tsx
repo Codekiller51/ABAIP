@@ -177,9 +177,9 @@ export const ServiceEditor: React.FC<ServiceEditorProps> = ({
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
       <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
-      
-      <div className="absolute inset-y-0 right-0 max-w-2xl w-full bg-white shadow-xl">
-        <div className="flex flex-col h-full">
+
+      <div className="absolute inset-y-0 right-0 max-w-2xl w-full bg-white shadow-xl overflow-hidden">
+        <div className="flex flex-col h-full overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-neutral-200">
             <div>

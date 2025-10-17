@@ -180,6 +180,61 @@ export const Media: React.FC = () => {
         </div>
       </div>
 
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-600">Total Files</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-2">{mediaFiles.length}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-blue-100">
+              <File className="h-6 w-6 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-600">Images</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-2">
+                {mediaFiles.filter(f => f.mime_type.startsWith('image/')).length}
+              </p>
+            </div>
+            <div className="p-3 rounded-lg bg-green-100">
+              <ImageIcon className="h-6 w-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-600">Total Size</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-2">
+                {formatFileSize(mediaFiles.reduce((acc, file) => acc + file.file_size, 0))}
+              </p>
+            </div>
+            <div className="p-3 rounded-lg bg-purple-100">
+              <Upload className="h-6 w-6 text-purple-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-600">Folders</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-2">{folders.length}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-orange-100">
+              <Folder className="h-6 w-6 text-orange-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Filters and Controls */}
       <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
         <div className="flex flex-col lg:flex-row gap-4">
@@ -460,61 +515,6 @@ export const Media: React.FC = () => {
             </table>
           </div>
         )}
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600">Total Files</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-2">{mediaFiles.length}</p>
-            </div>
-            <div className="p-3 rounded-lg bg-blue-100">
-              <File className="h-6 w-6 text-blue-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600">Images</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-2">
-                {mediaFiles.filter(f => f.mime_type.startsWith('image/')).length}
-              </p>
-            </div>
-            <div className="p-3 rounded-lg bg-green-100">
-              <ImageIcon className="h-6 w-6 text-green-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600">Total Size</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-2">
-                {formatFileSize(mediaFiles.reduce((acc, file) => acc + file.file_size, 0))}
-              </p>
-            </div>
-            <div className="p-3 rounded-lg bg-purple-100">
-              <Upload className="h-6 w-6 text-purple-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600">Folders</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-2">{folders.length}</p>
-            </div>
-            <div className="p-3 rounded-lg bg-orange-100">
-              <Folder className="h-6 w-6 text-orange-600" />
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Upload Modal */}

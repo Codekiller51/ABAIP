@@ -30,9 +30,9 @@ const Contact = () => {
     setSubmitStatus({ type: null, message: '' });
 
     try {
-      const { default: supabase } = await import('../lib/supabase');
+      const { supabase } = await import('../lib/supabase');
 
-      const { error } = await supabase.supabase
+      const { error } = await supabase
         .from('contact_messages')
         .insert({
           name: formData.name,

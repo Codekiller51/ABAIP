@@ -170,6 +170,66 @@ export const Services: React.FC = () => {
         </button>
       </div>
 
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-600">Total Services</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-2">{services.length}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-blue-100">
+              <Briefcase className="h-6 w-6 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-600">Active</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-2">
+                {services.filter(s => s.active).length}
+              </p>
+            </div>
+            <div className="p-3 rounded-lg bg-green-100">
+              <Eye className="h-6 w-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-600">Inactive</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-2">
+                {services.filter(s => !s.active).length}
+              </p>
+            </div>
+            <div className="p-3 rounded-lg bg-gray-100">
+              <EyeOff className="h-6 w-6 text-gray-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-600">Avg Features</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-2">
+                {services.length > 0
+                  ? Math.round(services.reduce((acc, s) => acc + (s.features?.length || 0), 0) / services.length)
+                  : 0
+                }
+              </p>
+            </div>
+            <div className="p-3 rounded-lg bg-purple-100">
+              <Star className="h-6 w-6 text-purple-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Filters and Search */}
       <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
         <div className="flex flex-col sm:flex-row gap-4">
@@ -275,7 +335,7 @@ export const Services: React.FC = () => {
                       <MoreHorizontal className="h-4 w-4" />
                     </button>
                     
-                    <div className="absolute right-0 bottom-full mb-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                    <div className="absolute right-0 bottom-full mb-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                       <button
                         onClick={() => handleEdit(service)}
                         className="flex items-center w-full px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
@@ -347,66 +407,6 @@ export const Services: React.FC = () => {
             </div>
           ))
         )}
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600">Total Services</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-2">{services.length}</p>
-            </div>
-            <div className="p-3 rounded-lg bg-blue-100">
-              <Briefcase className="h-6 w-6 text-blue-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600">Active</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-2">
-                {services.filter(s => s.active).length}
-              </p>
-            </div>
-            <div className="p-3 rounded-lg bg-green-100">
-              <Eye className="h-6 w-6 text-green-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600">Inactive</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-2">
-                {services.filter(s => !s.active).length}
-              </p>
-            </div>
-            <div className="p-3 rounded-lg bg-gray-100">
-              <EyeOff className="h-6 w-6 text-gray-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600">Avg Features</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-2">
-                {services.length > 0 
-                  ? Math.round(services.reduce((acc, s) => acc + (s.features?.length || 0), 0) / services.length)
-                  : 0
-                }
-              </p>
-            </div>
-            <div className="p-3 rounded-lg bg-purple-100">
-              <Star className="h-6 w-6 text-purple-600" />
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Service Editor Modal */}

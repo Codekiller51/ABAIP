@@ -144,6 +144,63 @@ export const Team: React.FC = () => {
         </button>
       </div>
 
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-600">Total Members</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-2">{teamMembers.length}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-blue-100">
+              <User className="h-6 w-6 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-600">Active</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-2">
+                {teamMembers.filter(m => m.active).length}
+              </p>
+            </div>
+            <div className="p-3 rounded-lg bg-green-100">
+              <Star className="h-6 w-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-600">Attorneys</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-2">
+                {teamMembers.filter(m => m.title.toLowerCase().includes('attorney') || m.title.toLowerCase().includes('partner')).length}
+              </p>
+            </div>
+            <div className="p-3 rounded-lg bg-purple-100">
+              <GraduationCap className="h-6 w-6 text-purple-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-neutral-600">Support Staff</p>
+              <p className="text-3xl font-bold text-neutral-900 mt-2">
+                {teamMembers.filter(m => !m.title.toLowerCase().includes('attorney') && !m.title.toLowerCase().includes('partner')).length}
+              </p>
+            </div>
+            <div className="p-3 rounded-lg bg-orange-100">
+              <Briefcase className="h-6 w-6 text-orange-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Filters and Search */}
       <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
         <div className="flex flex-col sm:flex-row gap-4">
@@ -330,63 +387,6 @@ export const Team: React.FC = () => {
             </div>
           ))
         )}
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600">Total Members</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-2">{teamMembers.length}</p>
-            </div>
-            <div className="p-3 rounded-lg bg-blue-100">
-              <User className="h-6 w-6 text-blue-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600">Active</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-2">
-                {teamMembers.filter(m => m.active).length}
-              </p>
-            </div>
-            <div className="p-3 rounded-lg bg-green-100">
-              <Star className="h-6 w-6 text-green-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600">Attorneys</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-2">
-                {teamMembers.filter(m => m.title.toLowerCase().includes('attorney') || m.title.toLowerCase().includes('partner')).length}
-              </p>
-            </div>
-            <div className="p-3 rounded-lg bg-purple-100">
-              <GraduationCap className="h-6 w-6 text-purple-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-neutral-600">Support Staff</p>
-              <p className="text-3xl font-bold text-neutral-900 mt-2">
-                {teamMembers.filter(m => !m.title.toLowerCase().includes('attorney') && !m.title.toLowerCase().includes('partner')).length}
-              </p>
-            </div>
-            <div className="p-3 rounded-lg bg-orange-100">
-              <Briefcase className="h-6 w-6 text-orange-600" />
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Team Member Editor Modal */}
