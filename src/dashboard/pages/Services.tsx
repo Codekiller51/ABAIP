@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Plus, Search, Filter, CreditCard as Edit, Trash2, Briefcase, Star, MoreHorizontal, Eye, EyeOff, ArrowUp, ArrowDown } from 'lucide-react'
+import { Plus, Search, Filter, Edit2 as Edit, Trash2, Briefcase, Star, Eye, EyeOff, ArrowUp, ArrowDown } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { Database } from '../../lib/supabase'
 import { ServiceEditor } from '../components/services/ServiceEditor'
@@ -328,38 +328,29 @@ export const Services: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Actions Menu */}
-                <div className="absolute bottom-3 right-3">
-                  <div className="relative group">
-                    <button className="p-2 rounded-lg bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all duration-200">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </button>
-                    
-                    <div className="absolute right-0 bottom-full mb-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                      <button
-                        onClick={() => handleEdit(service)}
-                        className="flex items-center w-full px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
-                      >
-                        <Edit className="h-4 w-4 mr-3" />
-                        Edit Service
-                      </button>
-                      <button
-                        onClick={() => handleStatusToggle(service.id, service.active)}
-                        className="flex items-center w-full px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100"
-                      >
-                        {service.active ? <EyeOff className="h-4 w-4 mr-3" /> : <Eye className="h-4 w-4 mr-3" />}
-                        {service.active ? 'Deactivate' : 'Activate'}
-                      </button>
-                      <hr className="my-1 border-neutral-200" />
-                      <button
-                        onClick={() => handleDelete(service.id)}
-                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4 mr-3" />
-                        Delete
-                      </button>
-                    </div>
-                  </div>
+                {/* Action Icons */}
+                <div className="absolute bottom-3 right-3 flex items-center space-x-1">
+                  <button
+                    onClick={() => handleEdit(service)}
+                    className="p-2 rounded-lg bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all duration-200"
+                    title="Edit Service"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleStatusToggle(service.id, service.active)}
+                    className="p-2 rounded-lg bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-all duration-200"
+                    title={service.active ? 'Deactivate' : 'Activate'}
+                  >
+                    {service.active ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                  <button
+                    onClick={() => handleDelete(service.id)}
+                    className="p-2 rounded-lg bg-white/20 backdrop-blur-sm text-white hover:bg-red-500/80 transition-all duration-200"
+                    title="Delete Service"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
 

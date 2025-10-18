@@ -365,7 +365,7 @@ export const InsightEditor: React.FC<InsightEditorProps> = ({
           </div>
 
           {/* Content */}
-          <form onSubmit={formHandleSubmit(onSubmit)} className="flex-1 flex flex-col">
+          <form onSubmit={formHandleSubmit(onSubmit)} className="flex-1 flex flex-col overflow-hidden">
             <div className="flex-1 overflow-y-auto p-6">
               {activeTab === 'content' && (
                 <div className="space-y-6">

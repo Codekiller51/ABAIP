@@ -222,7 +222,7 @@ export const TeamMemberEditor: React.FC<TeamMemberEditorProps> = ({
           </div>
 
           {/* Content */}
-          <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col overflow-hidden">
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {/* Basic Information */}
               <div className="space-y-4">
