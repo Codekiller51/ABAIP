@@ -65,7 +65,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
           {/* Logo */}
           <div className="flex h-16 shrink-0 items-center justify-between px-6 border-b border-neutral-200">
             <Link to="/dashboard" className="flex items-center space-x-3">
-              <Scale className="h-8 w-8 text-primary-600" />
+              {/* <Scale className="h-8 w-8 text-primary-600" /> */}
+              <img src="logot.png" alt="ABA IP Consultants Logo" className="h-12" />
               <div>
                 <h1 className="text-lg font-bold text-neutral-900">ABA IP</h1>
                 <p className="text-xs text-neutral-600">Dashboard</p>
